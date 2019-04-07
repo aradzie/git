@@ -771,3 +771,52 @@ struct commit_list *get_reachable_subset(struct commit **from, int nr_from,
 
 	return found_commits;
 }
+
+int count_marked_commits_1(struct commit_list **plist,
+			   struct commit *commit,
+			   unsigned int mark)
+{
+	int result = 0;
+
+	while (commit) {
+		struct commit_list *parents;
+
+		if (commit->object.flags == mark)
+			result++;
+
+		if (!(commit->object.flags & all_flags))
+			return result;
+
+		commit->object.flags &= ~all_flags;
+
+		parents = commit->parents;
+		if (!parents)
+			return result;
+
+		commit = parents->item;
+		while ((parents = parents->next))
+			commit_list_insert(parents->item, plist);
+	}
+
+	return result;
+}
+
+int count_marked_commits_many(int nr, struct commit **commit, unsigned int mark)
+{
+	int result = 0;
+	struct commit_list *list = NULL;
+
+	while (nr--) {
+		result += count_marked_commits_1(&list, *commit, mark);
+		commit++;
+	}
+	while (list)
+		result += count_marked_commits_1(&list, pop_commit(&list), mark);
+
+	return result;
+}
+
+int count_marked_commits(struct commit *commit, unsigned int mark)
+{
+	return count_marked_commits_many(1, &commit, mark);
+}

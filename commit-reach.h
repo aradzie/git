@@ -102,4 +102,7 @@ struct commit_list *get_reachable_subset(struct commit **from, int nr_from,
 					 struct commit **to, int nr_to,
 					 unsigned int reachable_flag);
 
+int count_marked_commits(struct commit *commit, unsigned int mark);
+int count_marked_commits_many(int nr, struct commit **commit, unsigned int mark);
+
 #endif

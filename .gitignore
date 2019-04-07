@@ -183,6 +183,7 @@
 /git-whatchanged
 /git-worktree
 /git-write-tree
+/git-table
 /git-core-*/?*
 /gitweb/GITWEB-BUILD-OPTIONS
 /gitweb/gitweb.cgi

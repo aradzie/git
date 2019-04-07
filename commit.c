@@ -619,7 +619,7 @@ static void clear_commit_marks_1(struct commit_list **plist,
 	while (commit) {
 		struct commit_list *parents;
 
-		if (!(mark & commit->object.flags))
+		if (!(commit->object.flags & mark))
 			return;
 
 		commit->object.flags &= ~mark;
@@ -628,10 +628,9 @@ static void clear_commit_marks_1(struct commit_list **plist,
 		if (!parents)
 			return;
 
+		commit = parents->item;
 		while ((parents = parents->next))
 			commit_list_insert(parents->item, plist);
-
-		commit = commit->parents->item;
 	}
 }
 

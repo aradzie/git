@@ -601,6 +601,7 @@ static struct cmd_struct commands[] = {
 	{ "whatchanged", cmd_whatchanged, RUN_SETUP },
 	{ "worktree", cmd_worktree, RUN_SETUP | NO_PARSEOPT },
 	{ "write-tree", cmd_write_tree, RUN_SETUP },
+	{ "table", cmd_table, RUN_SETUP },
 };
 
 static struct cmd_struct *get_builtin(const char *s)
