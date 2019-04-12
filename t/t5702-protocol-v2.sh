@@ -183,7 +183,7 @@ test_expect_success 'server-options are sent when using ls-remote' '
 '
 
 test_expect_success 'warn if using server-option with ls-remote with legacy protocol' '
-	GIT_TEST_PROTOCOL_VERSION=0 test_must_fail git -c protocol.version=0 \
+	test_must_fail env GIT_TEST_PROTOCOL_VERSION=0 git -c protocol.version=0 \
 		ls-remote -o hello -o world "file://$(pwd)/file_parent" master 2>err &&
 
 	grep "see protocol.version in" err &&
@@ -263,7 +263,8 @@ test_expect_success 'warn if using server-option with fetch with legacy protocol
 
 	git init temp_child &&
 
-	GIT_TEST_PROTOCOL_VERSION=0 test_must_fail git -C temp_child -c protocol.version=0 \
+	test_must_fail env GIT_TEST_PROTOCOL_VERSION=0 \
+		git -C temp_child -c protocol.version=0 \
 		fetch -o hello -o world "file://$(pwd)/file_parent" master 2>err &&
 
 	grep "see protocol.version in" err &&
@@ -284,7 +285,8 @@ test_expect_success 'server-options are sent when cloning' '
 test_expect_success 'warn if using server-option with clone with legacy protocol' '
 	test_when_finished "rm -rf myclone" &&
 
-	GIT_TEST_PROTOCOL_VERSION=0 test_must_fail git -c protocol.version=0 \
+	test_must_fail env GIT_TEST_PROTOCOL_VERSION=0 \
+		git -c protocol.version=0 \
 		clone --server-option=hello --server-option=world \
 		"file://$(pwd)/file_parent" myclone 2>err &&
 
