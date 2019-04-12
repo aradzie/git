@@ -3060,17 +3060,6 @@ void reset_revision_walk(void)
 	clear_object_flags(SEEN | ADDED | SHOWN);
 }
 
-static int mark_uninteresting(const struct object_id *oid,
-			      struct packed_git *pack,
-			      uint32_t pos,
-			      void *cb)
-{
-	struct rev_info *revs = cb;
-	struct object *o = parse_object(revs->repo, oid);
-	o->flags |= UNINTERESTING | SEEN;
-	return 0;
-}
-
 define_commit_slab(indegree_slab, int);
 define_commit_slab(author_date_slab, timestamp_t);
 
@@ -3308,11 +3297,6 @@ int prepare_revision_walk(struct rev_info *revs)
 	if (revs->simplify_merges ||
 	    (revs->limited && limiting_can_increase_treesame(revs)))
 		revs->treesame.name = "treesame";
-
-	if (revs->exclude_promisor_objects) {
-		for_each_packed_object(mark_uninteresting, revs,
-				       FOR_EACH_OBJECT_PROMISOR_ONLY);
-	}
 
 	if (revs->no_walk != REVISION_WALK_NO_WALK_UNSORTED)
 		commit_list_sort_by_date(&revs->commits);

@@ -22,6 +22,16 @@ struct traversal_context {
 	void *filter_data;
 };
 
+static int should_skip_promisor_object(const struct rev_info *revs,
+				       const struct object_id *oid)
+{
+	struct object_info oi = OBJECT_INFO_INIT;
+	return (revs->exclude_promisor_objects &&
+		!oid_object_info_extended(the_repository, oid, &oi, 0) &&
+		oi.whence == OI_PACKED &&
+		oi.u.packed.pack->pack_promisor);
+}
+
 static void process_blob(struct traversal_context *ctx,
 			 struct blob *blob,
 			 struct strbuf *path,
@@ -36,6 +46,8 @@ static void process_blob(struct traversal_context *ctx,
 	if (!obj)
 		die("bad blob object");
 	if (obj->flags & (UNINTERESTING | SEEN))
+		return;
+	if (should_skip_promisor_object(ctx->revs, &obj->oid))
 		return;
 
 	/*
@@ -165,6 +177,8 @@ static void process_tree(struct traversal_context *ctx,
 	if (!obj)
 		die("bad tree object");
 	if (obj->flags & (UNINTERESTING | SEEN))
+		return;
+	if (should_skip_promisor_object(ctx->revs, &obj->oid))
 		return;
 
 	failed_parse = parse_tree_gently(tree, 1);
@@ -336,6 +350,9 @@ static void traverse_trees_and_blobs(struct traversal_context *ctx,
 		struct object *obj = pending->item;
 		const char *name = pending->name;
 		const char *path = pending->path;
+		if (should_skip_promisor_object(ctx->revs, &obj->oid))
+			continue;
+
 		if (obj->flags & (UNINTERESTING | SEEN))
 			continue;
 		if (obj->type == OBJ_TAG) {
@@ -366,6 +383,9 @@ static void do_traverse(struct traversal_context *ctx)
 	strbuf_init(&csp, PATH_MAX);
 
 	while ((commit = get_revision(ctx->revs)) != NULL) {
+		if (should_skip_promisor_object(ctx->revs, &commit->object.oid))
+			continue;
+
 		/*
 		 * an uninteresting boundary commit may not have its tree
 		 * parsed yet, but we are not going to show them anyway
