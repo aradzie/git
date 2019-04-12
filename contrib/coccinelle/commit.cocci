@@ -12,17 +12,18 @@ expression c;
 
 // These excluded functions must access c->maybe_tree direcly.
 @@
-identifier f !~ "^(get_commit_tree|get_commit_tree_in_graph_one|load_tree_for_commit)$";
+identifier f !~ "^(repo_get_commit_tree|get_commit_tree_in_graph_one|load_tree_for_commit)$";
 expression c;
 @@
   f(...) {<...
 - c->maybe_tree
-+ get_commit_tree(c)
++ repo_get_commit_tree(the_repository, c)
   ...>}
 
 @@
 expression c;
+expression r;
 expression s;
 @@
-- get_commit_tree(c) = s
+- repo_get_commit_tree(r, c) = s
 + c->maybe_tree = s
